@@ -21,10 +21,13 @@ public interface CourseRepository extends JpaRepository<Course, Long> {
             c.status
         )
         FROM Course c
-        WHERE c.status = :status
+        WHERE (:status IS NULL OR c.status = :status)
+          AND (:keyword IS NULL OR :keyword = '' OR LOWER(c.title) LIKE LOWER(CONCAT('%', :keyword, '%')))
     """)
-    Page<CourseResponseV2> findAllByStatusV2(
+    Page<CourseResponseV2> searchCourses(
             @Param("status") CourseStatus status,
+            @Param("keyword") String keyword,
             Pageable pageable
     );
+
 }

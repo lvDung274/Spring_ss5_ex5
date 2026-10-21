@@ -26,13 +26,16 @@ public class CourseController {
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
             @RequestParam(required = false) String sortBy,
-            @RequestParam(defaultValue = "DESC") Sort.Direction direction,
-            @RequestParam(defaultValue = "ACTIVE") CourseStatus status) {
-        PageResponse<CourseResponseV2> pagedResult = courseService.getPagedCoursesByStatusV2(page, size, sortBy, direction, status);
+            @RequestParam(required = false) Sort.Direction direction,
+            @RequestParam(required = false) CourseStatus status,
+            @RequestParam(required = false) String keyword) {
+
+        PageResponse<CourseResponseV2> pagedResult = courseService.searchCourses(
+                page, size, sortBy, direction, status, keyword);
 
         ApiResponse<PageResponse<CourseResponseV2>> apiResponse = new ApiResponse<>();
         apiResponse.setSuccess(true);
-        apiResponse.setMessage("Lấy danh sách khóa học V2 thành công");
+        apiResponse.setMessage("Lấy danh sách khóa học thành công");
         apiResponse.setData(pagedResult);
 
         return ResponseEntity.ok(apiResponse);

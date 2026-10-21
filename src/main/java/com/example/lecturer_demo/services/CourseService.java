@@ -84,19 +84,24 @@ public class CourseService {
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy khóa học với ID: " + id));
         courseRepository.delete(existing);
     }
-    public PageResponse<CourseResponseV2> getPagedCoursesByStatusV2(
-            int page, int size, String sortBy, Sort.Direction direction, CourseStatus status) {
+    public PageResponse<CourseResponseV2> searchCourses(
+            int page, int size, String sortBy, Sort.Direction direction,
+            CourseStatus status, String keyword) {
+
         if (page < 0) {
             page = 0;
         }
 
-        if (sortBy == null || sortBy.trim().isEmpty()) {
-            sortBy = "id";
+        Pageable pageable;
+        if (sortBy != null && !sortBy.trim().isEmpty() && direction != null) {
+            pageable = PageRequest.of(page, size, Sort.by(direction, sortBy));
+        } else if (sortBy != null && !sortBy.trim().isEmpty()) {
+            pageable = PageRequest.of(page, size, Sort.by(sortBy));
+        } else {
+            pageable = PageRequest.of(page, size, Sort.unsorted());
         }
 
-        Pageable pageable = PageRequest.of(page, size, Sort.by(direction, sortBy));
-
-        Page<CourseResponseV2> coursePage = courseRepository.findAllByStatusV2(status, pageable);
+        Page<CourseResponseV2> coursePage = courseRepository.searchCourses(status, keyword, pageable);
         return PageResponse.<CourseResponseV2>builder()
                 .items(coursePage.getContent())
                 .page(coursePage.getNumber())
